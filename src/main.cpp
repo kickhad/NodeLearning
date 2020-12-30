@@ -3,7 +3,6 @@
 #include <PubSubClient.h>
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
-#include <WiFi.h>
 #include <WiFiManager.h>
 #include <DHT.h>
 #include <Wire.h>
@@ -132,30 +131,30 @@ void setup() {
   display.display();
   display.display_next();
   
-  // {
-  //   StaticJsonBuffer<300> JSONbuffer;
-  //   JsonObject & JSONencoder = JSONbuffer.createObject();
-  //   device = device_id + device_mac;
-  //   JSONencoder["device_id"] = device;
-  //   JSONencoder["device_type"] = device_type;
-  //   JsonArray& values = JSONencoder.createNestedArray("values");
-  //   values.add(percent);
-  //   values.add(t);
-  //   values.add(val);
-  //   values.add(h);
-  //   values.add(tint);
-  //   values.add(battery);
+  {
+    StaticJsonBuffer<300> JSONbuffer;
+    JsonObject & JSONencoder = JSONbuffer.createObject();
+    device = device_id + device_mac;
+    JSONencoder["device_id"] = device;
+    JSONencoder["device_type"] = device_type;
+    JsonArray& values = JSONencoder.createNestedArray("values");
+    values.add(percent);
+    values.add(t);
+    values.add(val);
+    values.add(h);
+    values.add(tint);
+    values.add(battery);
 
 
 
-  //   char DeviceDatamessageBuffer[300];
-  //   JSONencoder.printTo(DeviceDatamessageBuffer, sizeof(DeviceDatamessageBuffer));
+    char DeviceDatamessageBuffer[300];
+    JSONencoder.printTo(DeviceDatamessageBuffer, sizeof(DeviceDatamessageBuffer));
 
-  //   Serial.println(DeviceDatamessageBuffer);
+    Serial.println(DeviceDatamessageBuffer);
 
 
-  //   client.publish("kitchenfarms/device", DeviceDatamessageBuffer);
-  // }
+    client.publish("kitchenfarms/device", DeviceDatamessageBuffer);
+  }
   digitalWrite(OUTPUT, LOW);
 // <img src="data/Picture1.png" alt="Kitchen Farm Logo">);
 //  client.println("<img src=\"https://www.kitchenfarms.ca/wp-content/uploads/2020/03/kitchenfarms-1-1.png\" alt=\"kitchenFarms Logo\" height=\"42\" width=\"42\">");
