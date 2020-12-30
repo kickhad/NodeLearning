@@ -1,0 +1,80 @@
+Executing task: C:\Users\Natasha\.platformio\penv\Scripts\pio.exe run <
+
+Processing nodemcuv2 (platform: espressif8266; board: nodemcuv2; framework: arduino)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif8266/nodemcuv2.html
+PLATFORM: Espressif 8266 (2.6.2) > NodeMCU 1.0 (ESP-12E Module)
+HARDWARE: ESP8266 80MHz, 80KB RAM, 4MB Flash
+PACKAGES:
+ - framework-arduinoespressif8266 3.20704.0 (2.7.4)
+ - tool-esptool 1.413.0 (4.13)
+ - tool-esptoolpy 1.20800.0 (2.8.0)
+ - toolchain-xtensa 2.40802.200502 (4.8.2)
+Converting sticks_1.4.ino
+LDF: Library Dependency Finder -> http://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 37 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- <ArduinoJson> 5.11.0
+|-- <PubSubClient> 2.8.0
+|-- <DHT sensor library> 1.4.1
+|   |-- <Adafruit Unified Sensor> 1.1.4
+|-- <WiFiManager> 0.16.0
+|   |-- <DNSServer> 1.1.1
+|   |   |-- <ESP8266WiFi> 1.0
+|   |-- <ESP8266WebServer> 1.0
+|   |   |-- <ESP8266WiFi> 1.0
+|   |-- <ESP8266WiFi> 1.0
+|-- <Adafruit GFX Library> 1.10.4
+|   |-- <Adafruit BusIO> 1.7.1
+|   |   |-- <Wire> 1.0
+|   |   |-- <SPI> 1.0
+|   |-- <Wire> 1.0
+|   |-- <SPI> 1.0
+|-- <Adafruit SSD1306> 2.4.2
+|   |-- <Adafruit GFX Library> 1.10.4
+|   |   |-- <Adafruit BusIO> 1.7.1
+|   |   |   |-- <Wire> 1.0
+|   |   |   |-- <SPI> 1.0
+|   |   |-- <Wire> 1.0
+|   |   |-- <SPI> 1.0
+|   |-- <SPI> 1.0
+|   |-- <Wire> 1.0
+|-- <Adafruit BusIO> 1.7.1
+|   |-- <Wire> 1.0
+|   |-- <SPI> 1.0
+|-- <Adafruit Unified Sensor> 1.1.4
+|-- <DNSServer> 1.1.1
+|   |-- <ESP8266WiFi> 1.0
+|-- <ESP8266WebServer> 1.0
+|   |-- <ESP8266WiFi> 1.0
+|-- <ESP8266WiFi> 1.0
+|-- <Wire> 1.0
+Building in release mode
+Compiling .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o
+Linking .pio\build\nodemcuv2\firmware.elf
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o: in function `callback(char*, unsigned char*, unsigned int)':
+sticks_1.4.ino.cpp:(.text._Z8callbackPcPhj+0x8): multiple definition of `callback(char*, unsigned char*, unsigned int)'; .pio\build\nodemcuv2\src\1111.cpp.o:1111.cpp:(.text._Z8callbackPcPhj+0x8): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.bss.dht+0x0): multiple definition of `dht'; .pio\build\nodemcuv2\src\1111.cpp.o:(.bss.dht+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.bss.display+0x0): multiple definition of `display'; .pio\build\nodemcuv2\src\1111.cpp.o:(.bss.display+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o: in function `setup':
+sticks_1.4.ino.cpp:(.text.setup+0x44): multiple definition of `setup'; .pio\build\nodemcuv2\src\1111.cpp.o:1111.cpp:(.text.setup+0x44): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.bss.device_id+0x0): multiple definition of `device_id'; .pio\build\nodemcuv2\src\1111.cpp.o:(.bss.device_id+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.bss.device_mac+0x0): multiple definition of `device_mac'; .pio\build\nodemcuv2\src\1111.cpp.o:(.bss.device_mac+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.bss.device+0x0): multiple definition of `device'; .pio\build\nodemcuv2\src\1111.cpp.o:(.bss.device+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.bss.device_type+0x0): multiple definition of `device_type'; .pio\build\nodemcuv2\src\1111.cpp.o:(.bss.device_type+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.data.tint+0x0): multiple definition of `tint'; .pio\build\nodemcuv2\src\1111.cpp.o:(.data.tint+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.data.battery+0x0): multiple definition of `battery'; .pio\build\nodemcuv2\src\1111.cpp.o:(.data.battery+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.bss.client+0x0): multiple definition of `client'; .pio\build\nodemcuv2\src\1111.cpp.o:(.bss.client+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.data.mqttUser+0x0): multiple definition of `mqttUser'; .pio\build\nodemcuv2\src\1111.cpp.o:(.data.mqttUser+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.data.mqttPassword+0x0): multiple definition of `mqttPassword'; .pio\build\nodemcuv2\src\1111.cpp.o:(.data.mqttPassword+0x0): first defined here    
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.data.mqttServer+0x0): multiple definition of `mqttServer'; .pio\build\nodemcuv2\src\1111.cpp.o:(.data.mqttServer+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o: in function `loop':
+sticks_1.4.ino.cpp:(.text.loop+0x290): multiple definition of `loop'; .pio\build\nodemcuv2\src\1111.cpp.o:1111.cpp:(.text.loop+0x2bc): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.bss.server+0x0): multiple definition of `server'; .pio\build\nodemcuv2\src\1111.cpp.o:(.bss.server+0x0): first defined here
+c:/users/natasha/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld.exe: .pio\build\nodemcuv2\src\sticks_1.4.ino.cpp.o:(.bss.espClient+0x0): multiple definition of `espClient'; .pio\build\nodemcuv2\src\1111.cpp.o:(.bss.espClient+0x0): first defined here
+collect2.exe: error: ld returned 1 exit status
+*** [.pio\build\nodemcuv2\firmware.elf] Error 1
+==================================================================== [FAILED] Took 3.59 seconds ====================================================================
+The terminal process "C:\Users\Natasha\.platformio\penv\Scripts\pio.exe 'run'" terminated with exit code: 1.
