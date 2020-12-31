@@ -10,8 +10,9 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_Sensor.h>
 #include "configuration.h"
+#include "helpers.h"
 #include "MyDisplay.h"
-#include "SerialDebug.h"
+
 //node.dsleep(us, option, instant)
 // WiFiServer server(80);
 #define DEBUG
@@ -28,10 +29,10 @@ int battery = BATTERY;
 int tint = TINT;
 
 void configModeCallback (WiFiManager *myWiFiManager) {
-  printlnD("Entered config mode");
-  printlnD(WiFi.softAPIP());
+  serial_monitor("Entered config mode");
+  serial_monitor(WiFi.softAPIP());
   //if you used auto generated SSID, print it
-  printlnD(myWiFiManager->getConfigPortalSSID());
+  serial_monitor(myWiFiManager->getConfigPortalSSID());
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
@@ -54,7 +55,7 @@ void setup() {
   WiFiManager wifiManager;
   wifiManager.setAPCallback(configModeCallback);
   if(!wifiManager.autoConnect()) {    
-      printlnD(STR_ERR_CONNECT_TIMEOUT);
+      serial_monitor(STR_ERR_CONNECT_TIMEOUT);
   
     //reset and try again, or maybe put it to deep sleep
     ESP.reset();
@@ -73,11 +74,11 @@ void setup() {
     display.update_display(STR_INTERNET,STR_CONNECTED);
     delay (5000);
     display.clear_display();
-    printlnD(STR_ATTEMPT_MQTT);
+    serial_monitor(STR_ATTEMPT_MQTT);
     String clientId = STR_CLIENT_ID;
     clientId += String(random(0xffff), HEX);
     (client.connect(clientId.c_str(), MQTT_USER, MQTT_PASS)); {
-      printlnD(STR_CONNECTED);
+      serial_monitor(STR_CONNECTED);
       client.publish("outTopic", "Kitchen Farms");
       client.setServer(MQTT_SERVER, MQTT_PORT);
       client.setCallback(callback);
@@ -95,7 +96,7 @@ void setup() {
   float h = 3.3;
   // dht.readHumidity();
   if (isnan(h) || isnan(t)) {
-    printlnD("Failed to read from DHT sensor!");
+    Serial.println("Failed to read from DHT sensor!");
   }
   display.display_next();
   // display temperature
@@ -149,7 +150,7 @@ void setup() {
     char DeviceDatamessageBuffer[300];
     JSONencoder.printTo(DeviceDatamessageBuffer, sizeof(DeviceDatamessageBuffer));
 
-    printlnD(DeviceDatamessageBuffer);
+    Serial.println(DeviceDatamessageBuffer);
 
 
     client.publish("kitchenfarms/device", DeviceDatamessageBuffer);
