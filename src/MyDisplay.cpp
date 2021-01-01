@@ -2,7 +2,7 @@
 #include "MyDisplay.h"
 #include <Wire.h>
 #include <Adafruit_SSD1306.h>
-#include "configuration.h"
+// #include "configuration.h"
 
 
 // MyDisplay::MyDisplay(int w, int h, TwoWire* twi, int reset_pin)

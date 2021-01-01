@@ -2,7 +2,7 @@
 #define MyDisplay_h
 
 #include <ESP8266WiFi.h>
-#include <DHT.h>
+// #include <DHT.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -12,7 +12,7 @@
 // Adafruit_SSD1306 display();
 class MyDisplay : public Adafruit_SSD1306 {
   public:
-    MyDisplay(int, int, TwoWire*, int): Adafruit_SSD1306(SCREEN_HEIGHT, SCREEN_WIDTH, &Wire, OLED_RESET){};
+    MyDisplay(int, int, TwoWire*, int): Adafruit_SSD1306(SCREEN_WIDTH,SCREEN_HEIGHT, &Wire, OLED_RESET){};
     void update_display(String txt);
     void update_display(String txt, float t, String uom);
     void clear_display();

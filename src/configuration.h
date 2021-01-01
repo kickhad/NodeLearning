@@ -2,7 +2,9 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #define OLED_RESET    -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-
+#ifndef ESP8266
+    #define ESP8266
+#endif
 //MQTT
 
 #define MQTT_SERVER     "206.189.137.171"
