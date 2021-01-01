@@ -1,7 +1,3 @@
-/*********
-  Rui Santos
-  Complete project details at https://randomnerdtutorials.com  
-*********/
 #include <Arduino.h>
 #include <Wire.h>
 #include <ESP8266WiFi.h>
@@ -11,8 +7,7 @@
 #include <DNSServer.h>
 #include "MyDisplay.h"
 #include "ESP_WiFI.h"
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#include "Adafruit_Sensor.h"
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 MyDisplay display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
@@ -225,7 +220,6 @@ void loop() {
   if ((digitalRead(TRIGGER_PIN) == LOW) || (digitalRead(TRIGGER_PIN2) == LOW))
   {
     configPortalRequested();
-
   }
 
   // put your main code here, to run repeatedly

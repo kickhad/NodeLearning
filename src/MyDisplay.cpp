@@ -1,14 +1,6 @@
 #include "Arduino.h"
 #include "MyDisplay.h"
-#include <Wire.h>
-#include <Adafruit_SSD1306.h>
-// #include "configuration.h"
 
-
-// MyDisplay::MyDisplay(int w, int h, TwoWire* twi, int reset_pin)
-// { 
-  
-// }
 
 void MyDisplay::update_display(String txt)
 {
