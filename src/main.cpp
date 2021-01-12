@@ -13,9 +13,11 @@
 MyDisplay display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 void setup()
 {
-    if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
+  { // Address 0x3D for 128x64
     Serial.println(F("SSD1306 allocation failed"));
-    for(;;);
+    for (;;)
+      ;
   }
   delay(2000);
   display.clearDisplay();
@@ -25,14 +27,15 @@ void setup()
   display.setCursor(0, 10);
   // Display static text
   display.update_display("Kitchen Farms");
-  display.display(); 
+  display.display();
   pinMode(PIN_LED, OUTPUT);
   pinMode(TRIGGER_PIN, INPUT_PULLUP);
   pinMode(TRIGGER_PIN2, INPUT_PULLUP);
 
   Serial.begin(115200);
-  while (!Serial);
-  
+  while (!Serial)
+    ;
+
   Serial.print("\nStarting ConfigOnSwitch using " + String(FS_Name));
   Serial.println(" on " + String(ARDUINO_BOARD));
   Serial.println("ESP_WiFiManager Version " + String(ESP_WIFIMANAGER_VERSION));
@@ -50,11 +53,11 @@ void setup()
   if (!FileFS.begin(true))
 #else
   if (!FileFS.begin())
-#endif  
+#endif
   {
     Serial.print(FS_Name);
     Serial.println(F(" failed! AutoFormatting."));
-    
+
 #ifdef ESP8266
     FileFS.format();
 #endif
@@ -84,15 +87,15 @@ void setup()
   ESP_wifiManager.setConfigPortalChannel(0);
   //////
 
-#if !USE_DHCP_IP    
-  #if USE_CONFIGURABLE_DNS  
-    // Set static IP, Gateway, Subnetmask, DNS1 and DNS2. New in v1.0.5
-    ESP_wifiManager.setSTAStaticIPConfig(stationIP, gatewayIP, netMask, dns1IP, dns2IP);  
-  #else
-    // Set static IP, Gateway, Subnetmask, Use auto DNS1 and DNS2.
-    ESP_wifiManager.setSTAStaticIPConfig(stationIP, gatewayIP, netMask);
-  #endif 
-#endif                         
+#if !USE_DHCP_IP
+#if USE_CONFIGURABLE_DNS
+  // Set static IP, Gateway, Subnetmask, DNS1 and DNS2. New in v1.0.5
+  ESP_wifiManager.setSTAStaticIPConfig(stationIP, gatewayIP, netMask, dns1IP, dns2IP);
+#else
+  // Set static IP, Gateway, Subnetmask, Use auto DNS1 and DNS2.
+  ESP_wifiManager.setSTAStaticIPConfig(stationIP, gatewayIP, netMask);
+#endif
+#endif
 
   // New from v1.1.1
 #if USING_CORS_FEATURE
@@ -112,11 +115,11 @@ void setup()
   ssid.toUpperCase();
 
   // From v1.1.0, Don't permit NULL password
-  if ( (Router_SSID != "") && (Router_Pass != "") )
+  if ((Router_SSID != "") && (Router_Pass != ""))
   {
     LOGERROR3(F("* Add SSID = "), Router_SSID, F(", PW = "), Router_Pass);
     wifiMulti.addAP(Router_SSID.c_str(), Router_Pass.c_str());
-    
+
     ESP_wifiManager.setConfigPortalTimeout(120); //If no access point name has been previously entered disable timeout.
     Serial.println("Got stored Credentials. Timeout 120s for Config Portal");
   }
@@ -124,7 +127,7 @@ void setup()
   {
     Serial.println("Open Config Portal without Timeout: No stored Credentials.");
     digitalWrite(PIN_LED, LED_ON); // Turn led on as we are in configuration mode.
-    
+
     initialConfig = true;
   }
 
@@ -139,7 +142,7 @@ void setup()
     //ESP_wifiManager.setConfigPortalTimeout(600);
 
     // Starts an access point
-    if (!ESP_wifiManager.startConfigPortal((const char *) ssid.c_str(), password))
+    if (!ESP_wifiManager.startConfigPortal((const char *)ssid.c_str(), password))
       Serial.println("Not connected to WiFi but continuing anyway.");
     else
     {
@@ -148,12 +151,12 @@ void setup()
 
     // Stored  for later usage, from v1.1.0, but clear first
     memset(&WM_config, 0, sizeof(WM_config));
-    
+
     for (uint8_t i = 0; i < NUM_WIFI_CREDENTIALS; i++)
     {
       String tempSSID = ESP_wifiManager.getSSID(i);
-      String tempPW   = ESP_wifiManager.getPW(i);
-  
+      String tempPW = ESP_wifiManager.getPW(i);
+
       if (strlen(tempSSID.c_str()) < sizeof(WM_config.WiFi_Creds[i].wifi_ssid) - 1)
         strcpy(WM_config.WiFi_Creds[i].wifi_ssid, tempSSID.c_str());
       else
@@ -162,12 +165,12 @@ void setup()
       if (strlen(tempPW.c_str()) < sizeof(WM_config.WiFi_Creds[i].wifi_pw) - 1)
         strcpy(WM_config.WiFi_Creds[i].wifi_pw, tempPW.c_str());
       else
-        strncpy(WM_config.WiFi_Creds[i].wifi_pw, tempPW.c_str(), sizeof(WM_config.WiFi_Creds[i].wifi_pw) - 1);  
+        strncpy(WM_config.WiFi_Creds[i].wifi_pw, tempPW.c_str(), sizeof(WM_config.WiFi_Creds[i].wifi_pw) - 1);
 
       // Don't permit NULL SSID and password len < MIN_AP_PASSWORD_SIZE (8)
-      if ( (String(WM_config.WiFi_Creds[i].wifi_ssid) != "") && (strlen(WM_config.WiFi_Creds[i].wifi_pw) >= MIN_AP_PASSWORD_SIZE) )
+      if ((String(WM_config.WiFi_Creds[i].wifi_ssid) != "") && (strlen(WM_config.WiFi_Creds[i].wifi_pw) >= MIN_AP_PASSWORD_SIZE))
       {
-        LOGERROR3(F("* Add SSID = "), WM_config.WiFi_Creds[i].wifi_ssid, F(", PW = "), WM_config.WiFi_Creds[i].wifi_pw );
+        LOGERROR3(F("* Add SSID = "), WM_config.WiFi_Creds[i].wifi_ssid, F(", PW = "), WM_config.WiFi_Creds[i].wifi_pw);
         wifiMulti.addAP(WM_config.WiFi_Creds[i].wifi_ssid, WM_config.WiFi_Creds[i].wifi_pw);
       }
     }
@@ -187,23 +190,23 @@ void setup()
     for (uint8_t i = 0; i < NUM_WIFI_CREDENTIALS; i++)
     {
       // Don't permit NULL SSID and password len < MIN_AP_PASSWORD_SIZE (8)
-      if ( (String(WM_config.WiFi_Creds[i].wifi_ssid) != "") && (strlen(WM_config.WiFi_Creds[i].wifi_pw) >= MIN_AP_PASSWORD_SIZE) )
+      if ((String(WM_config.WiFi_Creds[i].wifi_ssid) != "") && (strlen(WM_config.WiFi_Creds[i].wifi_pw) >= MIN_AP_PASSWORD_SIZE))
       {
-        LOGERROR3(F("* Add SSID = "), WM_config.WiFi_Creds[i].wifi_ssid, F(", PW = "), WM_config.WiFi_Creds[i].wifi_pw );
+        LOGERROR3(F("* Add SSID = "), WM_config.WiFi_Creds[i].wifi_ssid, F(", PW = "), WM_config.WiFi_Creds[i].wifi_pw);
         wifiMulti.addAP(WM_config.WiFi_Creds[i].wifi_ssid, WM_config.WiFi_Creds[i].wifi_pw);
       }
     }
 
-    if ( WiFi.status() != WL_CONNECTED ) 
+    if (WiFi.status() != WL_CONNECTED)
     {
       Serial.println("ConnectMultiWiFi in setup");
-     
+
       connectMultiWiFi();
     }
   }
 
   Serial.print("After waiting ");
-  Serial.print((float) (millis() - startedAt) / 1000L);
+  Serial.print((float)(millis() - startedAt) / 1000L);
   Serial.print(" secs more in setup(), connection result is ");
 
   if (WiFi.status() == WL_CONNECTED)
@@ -215,104 +218,119 @@ void setup()
     Serial.println(ESP_wifiManager.getStatus(WiFi.status()));
 }
 
-void loop() {
-   // is configuration portal requested?
+void loop()
+{
+  // is configuration portal requested?
   if ((digitalRead(TRIGGER_PIN) == LOW) || (digitalRead(TRIGGER_PIN2) == LOW))
   {
     configPortalRequested();
-     if (WiFi.status() == WL_CONNECTED)
-    Serial.print("H");        // H means connected to WiFi
-    display.update_display('Internet','Connected');
-      display.clear_display();
-      display.display_next();
-      
-  else
-    Serial.print("F"); 
-    display.update_display('Internet',' Failed');
-      display.clear_display();
-      display.display_next();
+    //****
+    //  Try updating the functions in ESP_WiFi to do these things. Follow the logic of configPortalRequested()
+    //*****
+
+    //   // Nested If and Else missing catch {}
+    //   if (WiFi.status() == WL_CONNECTED)
+    //   {
+    //     Serial.print("H"); // H means connected to WiFi
+    //     display.update_display('Internet', 'Connected');
+    //     display.clear_display();
+    //     display.display_next();
+    //   }
+    //   else
+    //   {
+    //     Serial.print("F");
+    //     display.update_display('Internet', ' Failed');
+    //     display.clear_display();
+    //     display.display_next();
+    //   }
+    // }
+    // if (!client.connected())
+    // {
+    //   Serial.print("Attempting MQTT connection...");
+    //   String clientId = "ESP8266Client-";
+    //   clientId += String(random(0xffff), HEX);
+    //   (client.connect(clientId.c_str(), mqttUser, mqttPassword));
+    //   {
+    //     Serial.println("connected");
+
+    //     client.publish("outTopic", "hello world");
+    //     client.setServer(mqttServer, mqttPort);
+    //     client.setCallback(callback);
+    //     // Serial.println(WiFi.macAddress());
+    //     //  Serial.print("MAC Address:  ");
+    //     client.publish("kitchenfarms/device", "hello"); //Topic name
   }
-  if (!client.connected()) {
-        Serial.print("Attempting MQTT connection...");
-        String clientId = "ESP8266Client-";
-        clientId += String(random(0xffff), HEX);
-        (client.connect(clientId.c_str(), mqttUser, mqttPassword)); {
-      Serial.println("connected");
- 
+  //   // put your main code here, to run repeatedly
 
-         client.publish("outTopic", "hello world");
-          client.setServer(mqttServer, mqttPort);
-          client.setCallback(callback);
-         // Serial.println(WiFi.macAddress());
-        //  Serial.print("MAC Address:  ");
-          client.publish("kitchenfarms/device", "hello"); //Topic name
-        }
-  // put your main code here, to run repeatedly
-  check_status(
+  // ****
+  // have to declare dht at the begining, that didn't get moved from old code
+  float t = dht.readTemperature() float h = dht.readHumidity() if (isnan(h) || isnan(t))
+                                                Serial.println("Failed to read from DHT sensor");
+  // *** 
+  // float t declares t as a float variable, which you did above. 
+  // things from here down look like objects/variables being used befor they are declared. 
+  // *** 
 
-    //DHT- read temperature and humidity
-{
-      float t = dht.readTemperature()
-      float h = dht.readHumidity()
-      if (isnan(h) || isnan(t)) {
-        Serial.println("Failed to read from DHT sensor");
-      }
-      display.update_display('Temp:',float t, 'C');
-      display.clear_display();
-      display.display_next();
+  display.update_display('Temp:', t, 'C');
+  // *** 
+  // display.clear_display();
+  // *** 
+  display.display_next();
+  display.update_display('Humidity:', h, '%');
+  // display.clear_display();
+  display.display_next();
 
-      display.update_display('Humidity:', float h, '%');
-      display.clear_display();
-      display.display_next();
+  //SOIL MOISTURE
+  {
+    int readSensor();
+    digitalWrite(sensorPower, HIGH);
+    delay(10); // Allow power to settle
+    int val = digitalRead(sensorPin);
+    digitalWrite(sensorPower, LOW);
+    if (val)
+    {
+      display.print("Wet");
+    }
+    else
+    {
+      display.print("Dry");
+    }
+    display.update_display("");
+    display.clear_display();
+    display.display_next();
+  }
+
+  //LIGHT
+  {
+  }
+  int sensorValue = analogRead(A0);
+
+  float percent = (sensorValue / 1023.0) * 100;
+  display.update_display('Light:', percent, '%');
+  display.clear_display();
 }
-      
-      //SOIL MOISTURE
-      {
-    int readSensor() ;
-      digitalWrite(sensorPower, HIGH);  
-      delay(10);              // Allow power to settle
-      int val = digitalRead(sensorPin); 
-      digitalWrite(sensorPower, LOW);   
-      if (val) {
-        display.print("Wet");
-      } else {
-        display.print("Dry");
-      }
-      display.update_display("");
-      display.clear_display();
-      display.display_next();
-      }
 
-      //LIGHT
-      {}
-        int sensorValue = analogRead(A0);   
-
-        float percent = (sensorValue / 1023.0) * 100;
-        display.update_display('Light:',percent, '%');
-        display.clear_display();
-  }
-
-        //JSON
+//JSON
 {
-    StaticJsonBuffer<300> JSONbuffer;
-    JsonObject & JSONencoder = JSONbuffer.createObject();
-    device = device_id + device_mac;
-    JSONencoder["device_id"] = device;
-    JSONencoder["device_type"] = device_type;
-    JsonArray& values = JSONencoder.createNestedArray("values");
-    values.add(percent);
-    values.add(t);
-    values.add(val);
-    values.add(h);
-    values.add(tint);
-    values.add(battery);
+  StaticJsonBuffer<300> JSONbuffer;
+  JsonObject &JSONencoder = JSONbuffer.createObject();
+  device = device_id + device_mac;
+  JSONencoder["device_id"] = device;
+  JSONencoder["device_type"] = device_type;
+  JsonArray &values = JSONencoder.createNestedArray("values");
+  values.add(percent);
+  values.add(t);
+  values.add(val);
+  values.add(h);
+  values.add(tint);
+  values.add(battery);
 
-    char DeviceDatamessageBuffer[300];
-    JSONencoder.printTo(DeviceDatamessageBuffer, sizeof(DeviceDatamessageBuffer));
+  char DeviceDatamessageBuffer[300];
+  JSONencoder.printTo(DeviceDatamessageBuffer, sizeof(DeviceDatamessageBuffer));
 
-    Serial.println(DeviceDatamessageBuffer);
+  Serial.println(DeviceDatamessageBuffer);
 
-    client.publish("kitchenfarms/device", DeviceDatamessageBuffer);
-  }
+  client.publish("kitchenfarms/device", DeviceDatamessageBuffer);
+}
       );
-  }
+      }
