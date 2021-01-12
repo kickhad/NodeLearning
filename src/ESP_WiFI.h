@@ -523,7 +523,7 @@ void configPortalRequested()
     else
     {
       //if you get here you have connected to the WiFi
-      Serial.println("connected...yeey :)");
+      Serial.println("connected");
       Serial.print("Local IP: ");
       Serial.println(WiFi.localIP());
     }
