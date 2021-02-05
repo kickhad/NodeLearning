@@ -1,21 +1,31 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <ESP8266WiFi.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
 #include "MyDisplay.h"
 #include "ESP_WiFI.h"
 #include "Adafruit_Sensor.h"
-
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+#include "DHT.h"
+#include <ArduinoJson.h>
+#include <CooperativeMultitasking.h>
+#include <PubSubClient.h>
+#include "configuration.h"
+#include <WiFiClient.h>
+// #include <MQTT.h>
+DHT dht(DHT_PIN, DHT_TYPE);
 MyDisplay display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+WiFiClient client;
+
 void setup()
 {
+
+  // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
   { // Address 0x3D for 128x64
-    Serial.println(F("SSD1306 allocation failed"));
+    Serial.println(("SSD1306 allocation failed"));
     for (;;)
       ;
   }
@@ -28,9 +38,9 @@ void setup()
   // Display static text
   display.update_display("Kitchen Farms");
   display.display();
-  pinMode(PIN_LED, OUTPUT);
-  pinMode(TRIGGER_PIN, INPUT_PULLUP);
-  pinMode(TRIGGER_PIN2, INPUT_PULLUP);
+  // pinMode(PIN_LED, OUTPUT);
+  // pinMode(TRIGGER_PIN, INPUT_PULLUP);
+  // pinMode(TRIGGER_PIN2, INPUT_PULLUP);
 
   Serial.begin(115200);
   while (!Serial)
@@ -61,6 +71,13 @@ void setup()
 #ifdef ESP8266
     FileFS.format();
 #endif
+
+    CooperativeMultitasking tasks;
+    Continuation connectMQTTClientIfNeeded;
+    // MQTTClient mqttclient(&tasks, &wificlient, host, 1883, clientid, username, password);
+    // MQTTTopic topic(&mqttclient, topicname);
+    //   // mqttclient.connect();
+    // tasks.after(10000, beginWifiIdNeeded)
   }
 
   unsigned long startedAt = millis();
@@ -216,121 +233,75 @@ void setup()
   }
   else
     Serial.println(ESP_wifiManager.getStatus(WiFi.status()));
+    WiFiClient client;
+    PubSubClient mqtt_client(MQTT_SERVER, MQTT_PORT, client);
 }
 
 void loop()
 {
-  // is configuration portal requested?
-  if ((digitalRead(TRIGGER_PIN) == LOW) || (digitalRead(TRIGGER_PIN2) == LOW))
+  configPortalRequested();
+
+  // DHT Poll & Print
+
+  float t = dht.readTemperature();
+  float h = dht.readHumidity();
+  if (isnan(t) || isnan(h))
   {
-    configPortalRequested();
-    //****
-    //  Try updating the functions in ESP_WiFi to do these things. Follow the logic of configPortalRequested()
-    //*****
+    Serial.println("Failed to read from DHT sensor");
 
-    //   // Nested If and Else missing catch {}
-    //   if (WiFi.status() == WL_CONNECTED)
-    //   {
-    //     Serial.print("H"); // H means connected to WiFi
-    //     display.update_display('Internet', 'Connected');
-    //     display.clear_display();
-    //     display.display_next();
-    //   }
-    //   else
-    //   {
-    //     Serial.print("F");
-    //     display.update_display('Internet', ' Failed');
-    //     display.clear_display();
-    //     display.display_next();
-    //   }
-    // }
-    // if (!client.connected())
-    // {
-    //   Serial.print("Attempting MQTT connection...");
-    //   String clientId = "ESP8266Client-";
-    //   clientId += String(random(0xffff), HEX);
-    //   (client.connect(clientId.c_str(), mqttUser, mqttPassword));
-    //   {
-    //     Serial.println("connected");
-
-    //     client.publish("outTopic", "hello world");
-    //     client.setServer(mqttServer, mqttPort);
-    //     client.setCallback(callback);
-    //     // Serial.println(WiFi.macAddress());
-    //     //  Serial.print("MAC Address:  ");
-    //     client.publish("kitchenfarms/device", "hello"); //Topic name
-  }
-  //   // put your main code here, to run repeatedly
-
-  // ****
-  // have to declare dht at the begining, that didn't get moved from old code
-  float t = dht.readTemperature() float h = dht.readHumidity() if (isnan(h) || isnan(t))
-                                                Serial.println("Failed to read from DHT sensor");
-  // *** 
-  // float t declares t as a float variable, which you did above. 
-  // things from here down look like objects/variables being used befor they are declared. 
-  // *** 
-
-  display.update_display('Temp:', t, 'C');
-  // *** 
-  // display.clear_display();
-  // *** 
-  display.display_next();
-  display.update_display('Humidity:', h, '%');
-  // display.clear_display();
-  display.display_next();
-
-  //SOIL MOISTURE
-  {
-    int readSensor();
-    digitalWrite(sensorPower, HIGH);
-    delay(10); // Allow power to settle
-    int val = digitalRead(sensorPin);
-    digitalWrite(sensorPower, LOW);
-    if (val)
-    {
-      display.print("Wet");
-    }
-    else
-    {
-      display.print("Dry");
-    }
-    display.update_display("");
-    display.clear_display();
+    display.update_display("Temp:", t, "C");
     display.display_next();
-  }
+    display.update_display("Humidity:", h, "\%");
+    display.display_next();
 
-  //LIGHT
-  {
-  }
-  int sensorValue = analogRead(A0);
-
-  float percent = (sensorValue / 1023.0) * 100;
-  display.update_display('Light:', percent, '%');
-  display.clear_display();
-}
-
-//JSON
-{
-  StaticJsonBuffer<300> JSONbuffer;
-  JsonObject &JSONencoder = JSONbuffer.createObject();
-  device = device_id + device_mac;
-  JSONencoder["device_id"] = device;
-  JSONencoder["device_type"] = device_type;
-  JsonArray &values = JSONencoder.createNestedArray("values");
-  values.add(percent);
-  values.add(t);
-  values.add(val);
-  values.add(h);
-  values.add(tint);
-  values.add(battery);
-
-  char DeviceDatamessageBuffer[300];
-  JSONencoder.printTo(DeviceDatamessageBuffer, sizeof(DeviceDatamessageBuffer));
-
-  Serial.println(DeviceDatamessageBuffer);
-
-  client.publish("kitchenfarms/device", DeviceDatamessageBuffer);
-}
-      );
+    //SOIL MOISTURE
+    {
+      int readSensor();
+      digitalWrite(SENSOR_POWER, HIGH);
+      delay(10); // Allow power to settle
+      int val = digitalRead(SENSOR_PIN);
+      digitalWrite(SENSOR_POWER, LOW);
+      if (val)
+      {
+        display.print("Wet");
       }
+      else
+      {
+        display.print("Dry");
+      }
+      display.update_display("");
+      display.clear_display();
+      display.display_next();
+    }
+
+    //LIGHT
+
+    int sensorValue = analogRead(A0);
+
+    float percent = (sensorValue / 1023.0) * 100;
+    // display.update_display("Light:", percent, "%");
+    display.clear_display();
+
+    //JSON
+    {
+      StaticJsonDocument<BUFFER_LENGTH> doc;
+      int battery_level = 0;
+      int tint = TINT_LEVEL;
+      doc["temp"] = t;
+      doc["humidty"] = h;
+      doc["batt"] = battery_level;
+      doc["tint"] = tint;
+
+      JsonArray data = doc.createNestedArray("data");
+
+      // char DeviceDatamessageBuffer[300];
+      serializeJson(doc, Serial);
+    }
+    // {
+    // PubSubClient (server, port, [callback], client, [stream])
+  }
+  //  device = device_id + device_mac;
+  Serial.println();
+
+  // client.publish("kitchenfarms/device", DeviceDatamessageBuffer);
+}

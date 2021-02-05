@@ -3,15 +3,19 @@
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #define OLED_RESET    -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 #ifndef ESP8266
-    #define ESP8266
+#define ESP8266
 #endif
 //MQTT
 
+#ifndef DEBUG
 #define MQTT_SERVER     "206.189.137.171"
 #define MQTT_PORT   1883
 #define MQTT_USER   "kitchenfarms"
 #define MQTT_PASS   "kitchenfarms"
-
+#else
+#define MQTT_SERVER test.mosquitto.org
+#define MQTT_PORT 1883 
+#endif
 //DHT 
 #define DHT_PIN        D7
 #define DHT_TYPE    DHT11
@@ -23,7 +27,7 @@
 #define DEVICE_ID   "AK-"
 #define DEVICE_TYPE     "KORYSTICK"
 #define BATTERY 50
-#define TINT 2
+#define TINT_LEVEL 2
 
 //STRINGS
 #define STR_ATTEMPT_MQTT "Attempting MQTT connection..."
