@@ -1,120 +1,164 @@
 #include <Arduino.h>
-#include "kfnetman.h"
+#include <ArduinoJson.h>
+// #include "heltec.h"
+#include "kfcore/core.h"
+#include "ArduinoJson.h"
+#include "MyDisplay.h"
+// #include "DHTesp.h"
+#include "Adafruit_seesaw.h"
+
+#include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include "ESP_wifiManager.h"
-// #include <ESP8266WiFi.h>
-// #include <ESP8266WebServer.h>
-#include <DNSServer.h>
-#include "MyDisplay.h"
-// #include "ESP_WiFI.h"
-#include "Adafruit_Sensor.h"
-#include "DHT.h"
-#include <ArduinoJson.h>
-// #include <CooperativeMultitasking.h>
-#include <PubSubClient.h>
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #include "configuration.h"
-#include <WiFiClient.h>
-// #include <MQTT.h>
-DHT dht(DHT_PIN, DHT_TYPE);
-MyDisplay display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-WiFiClient client;
-ESP_WiFiManager wifiManager;
+#include <Adafruit_AHTX0.h>
+#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3D ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+Adafruit_AHTX0 aht;
+Adafruit_seesaw ss;
+struct SensorData
+{
+  float temp;
+  float humidity;
+  uint16_t soil_cap;
+  double light;
+  float soil_tempC;
+};
+
+SensorData data;
+
+// DHTesp dht;
+// KfClient client;
+// MyDisplay display;
 void setup()
 {
 
-  // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
   Serial.begin(115200);
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
-  { // Address 0x3D for 128x64
-    Serial.println(("SSD1306 allocation failed"));
-    for (;;)
+  if (!ss.begin(0x36))
+  {
+    Serial.println("ERROR! seesaw not found");
       ;
   }
-  delay(2000);
-  wifiManager = wifiManager();
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.setCursor(0, 10);
-  // Display static text
-  display.update_display("Kitchen Farms");
-  display.display();
-  // pinMode(PIN_LED, OUTPUT);
-  // pinMode(TRIGGER_PIN, INPUT_PULLUP);
-  // pinMode(TRIGGER_PIN2, INPUT_PULLUP);
+  else
+  {
+    Serial.print("seesaw started! version: ");
+    Serial.println(ss.getVersion(), HEX);
+  }
+  if (!aht.begin())
+  {
+    Serial.println("Could not find AHT? Check wiring");
+    while (1)
+      delay(10);
+  }
+  Serial.println("AHT10 or AHT20 found");
+  // Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, true /*Serial Enable*/);
+  // Heltec.display->init();
+  // dht.setup(27, DHTesp::DHT11);
 
-  Serial.println(ESP_wifiManager.getStatus(WiFi.status()));
-  WiFiClient client;
-  PubSubClient mqtt_client(MQTT_SERVER, MQTT_PORT, client);
+  delay(500);
+  // Heltec.display->clear();
+  // Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
+  // #TODO Splash version
+  // Heltec.display->setFont(ArialMT_Plain_10);
+  // Heltec.display->drawString(0, 0, "Kitchen Farms");
+  // Heltec.display->display();
+
+  // wifiManager = wifiManager();
+
+  // PubSubClient mqtt_client(MQTT_SERVER, MQTT_PORT, client);
 }
 
 void loop()
 {
-  configPortalRequested();
+  // configPortalRequested();
+  sensors_event_t humidity, temp;
+ aht.getEvent(&humidity, &temp);// populate temp and humidity objects with fresh data
+  Serial.print("Temperature: "); Serial.print(temp.temperature); Serial.println(" degrees C");
+  Serial.print("Humidity: "); Serial.print(humidity.relative_humidity); Serial.println("% rH");
 
-  // DHT Poll & Print
+  { // sensor loop
+    // DHT Poll & Print
+    // Serial.println("Reading DHT");
+    
+    aht.getEvent(&humidity, &temp);
+    float soil_tempC = ss.getTemp();
+    uint16_t capread = ss.touchRead(0);
+    data.temp = ss.getTemp();       // Soil Temp
+    data.soil_cap = ss.touchRead(0); // Soil cap
+    // data.humidity = dht.getHumidity();
+    // data.soil = 999;
+    data.light = 999;
+    Serial.print("Temperature: ");
+    Serial.print(temp.temperature);
+    Serial.println(" degrees C");
+    Serial.print("Humidity: ");
+    Serial.print(humidity.relative_humidity);
+    Serial.println("% rH");
 
-  float t = dht.readTemperature();
-  float h = dht.readHumidity();
-  if (isnan(t) || isnan(h))
-  {
-    Serial.println("Failed to read from DHT sensor");
-
-    display.update_display("Temp:", t, "C");
-    display.display_next();
-    display.update_display("Humidity:", h, "\%");
-    display.display_next();
+    if (isnan(data.temp))
+    {
+      data.temp = 999;
+    }
+    if (isnan(data.humidity))
+    {
+      data.humidity = 999;
+    }
 
     //SOIL MOISTURE
-    {
-      int readSensor();
-      digitalWrite(SENSOR_POWER, HIGH);
-      delay(10); // Allow power to settle
-      int val = digitalRead(SENSOR_PIN);
-      digitalWrite(SENSOR_POWER, LOW);
-      if (val)
-      {
-        display.print("Wet");
-      }
-      else
-      {
-        display.print("Dry");
-      }
-      display.update_display("");
-      display.clear_display();
-      display.display_next();
-    }
 
-    //LIGHT
+    // int readSensor;
+    digitalWrite(SENSOR_POWER, HIGH);
+    delay(10); // Allow power to settle
+    int soil = digitalRead(SENSOR_PIN);
+    digitalWrite(SENSOR_POWER, LOW);
 
-    int sensorValue = analogRead(A0);
+    // //LIGHT
 
-    float percent = (sensorValue / 1023.0) * 100;
+    // int sensorValue = analogRead(A0);
+
+    // float percent = (sensorValue / 1023.0) * 100;
     // display.update_display("Light:", percent, "%");
-    display.clear_display();
+    // Update display
+    //
 
-    //JSON
-    {
-      StaticJsonDocument<BUFFER_LENGTH> doc;
-      int battery_level = 0;
-      int tint = TINT_LEVEL;
-      doc["temp"] = t;
-      doc["humidty"] = h;
-      doc["batt"] = battery_level;
-      doc["tint"] = tint;
-
-      JsonArray data = doc.createNestedArray("data");
-
-      // char DeviceDatamessageBuffer[300];
-      serializeJson(doc, Serial);
-    }
-    // {
-    // PubSubClient (server, port, [callback], client, [stream])
+    String temp_str = "Temp : ";
+    temp_str += String(data.temp, 1);
+    temp_str += "C";
+    String hum_str = "RH % :";
+    hum_str += String(data.humidity, 1);
+    // String soil_str = "Soil :";
+    // soil_str += String(data.soil, 1);
+    // Heltec.display->clear();
+    // Heltec.display->drawString(0, 0, temp_str);
+    // Heltec.display->drawString(0, 10, hum_str);
+    // Heltec.display->drawString(0, 20, soil_str);
+    // Heltec.display->display();
   }
-  //  device = device_id + device_mac;
-  Serial.println();
 
-  // client.publish("kitchenfarms/device", DeviceDatamessageBuffer);
+  // #define BUFFER_LENGTH 256
+  //     //JSON
+
+  //     StaticJsonDocument<BUFFER_LENGTH> doc;
+  //     int battery_level = 0;
+  //     int tint = TINT_LEVEL;
+  //     doc["temp"] = t;
+  //     doc["humidty"] = h;
+  //     doc["batt"] = battery_level;
+  //     doc["tint"] = tint;
+
+  //     JsonArray data = doc.createNestedArray("data");
+
+  //     // char DeviceDatamessageBuffer[300];
+  //     serializeJson(doc, Serial);
+  delay(3000);
+  // {
+  // PubSubClient (server, port, [callback], client, [stream])
 }
+//  device = device_id + device_mac;
+
+// client.publish("kitchenfarms/device", DeviceDatamessageBuffer);
