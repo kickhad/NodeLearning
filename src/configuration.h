@@ -1,11 +1,3 @@
-//  SCREEN PARAMS
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
-#define OLED_RESET -1    // Reset pin # (or -1 if sharing Arduino reset pin)
-#ifndef ESP8266
-#define ESP8266
-#endif
-//MQTT
 
 // #ifndef DEBUG
 #define MQTT_SERVER "206.189.137.171"
@@ -38,3 +30,16 @@
 #define STR_ERR_CONNECT_TIMEOUT "failed to connect and hit timeout"
 #define STR_INTERNET "Internet: "
 #define STR_FAILED "Failed!"
+
+
+#define TLS2591_INT_THRESHOLD_LOWER (100)
+#define TLS2591_INT_THRESHOLD_UPPER (1500)
+//#define TLS2591_INT_PERSIST        (TSL2591_PERSIST_ANY) // Fire on any valid change
+#define TLS2591_INT_PERSIST (TSL2591_PERSIST_60) // Require at least 60 samples to fire
+
+
+
+#define SCREEN_WIDTH 128    // OLED display width, in pixels
+#define SCREEN_HEIGHT 64    // OLED display height, in pixels
+#define OLED_RESET -1       // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3D ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
