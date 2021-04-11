@@ -1,2 +1,2 @@
 #define SSID "Kicks"
-#define PASSWORDS "Peekaboo890!"
+#define PASSWORD "Peekaboo890!"

@@ -7,15 +7,17 @@
 #endif
 //MQTT
 
-#ifndef DEBUG
+// #ifndef DEBUG
 #define MQTT_SERVER "206.189.137.171"
 #define MQTT_PORT 1883
 #define MQTT_USER "kitchenfarms"
 #define MQTT_PASS "kitchenfarms"
-#else
-#define MQTT_SERVER test.mosquitto.org
-#define MQTT_PORT 1883
-#endif
+// #else
+// #define MQTT_SERVER "192.168.0.11"
+// #define MQTT_PORT 1883
+// #define MQTT_USER "test"
+// #define MQTT_PASS "testtest"
+// #endif
 //DHT
 #define DHT_PIN 27
 #define DHT_TYPE DHT11
