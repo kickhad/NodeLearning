@@ -50,7 +50,7 @@ void Logger::setDebugLevel(debug_level_t level)
 void Logger::printA(const String & text, const char * file, uint32_t line)
 {
 	printStartColor(DEBUG_LEVEL_NONE);
-	printHeader(DEBUG_LEVEL_NONE, file, line, false);
+	printHeader();
 	_serial->print(text);
 	printEndColor(DEBUG_LEVEL_NONE);
 }
@@ -68,7 +68,7 @@ void Logger::printE(const String & text, const char * file, uint32_t line)
 void Logger::printlnA(const String & text, const char * file, uint32_t line)
 {
 	printStartColor(DEBUG_LEVEL_NONE);
-	printHeader(DEBUG_LEVEL_NONE, file, line, true);
+	printHeader();
 	_serial->println(text);
 	printEndColor(DEBUG_LEVEL_NONE);
 }
@@ -201,7 +201,7 @@ void Logger::printStartColor(debug_level_t level)
 		break;
 	}
 }
-
+void Logger::printHeader(){};
 void Logger::printHeader(debug_level_t level, const char * file, uint32_t line, bool isln)
 {
 	if (_printIsNewline)

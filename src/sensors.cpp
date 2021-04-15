@@ -5,11 +5,17 @@
 #include "logger/logger.h"
 #include "sensors.h"
 #include "configuration.h"
-
+#include "ArduinoJson.h"
+#include "PubSubClient.h"
+#include "WiFiClient.h"
 Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591); // pass in a number for the sensor identifier (for your use later)
-Adafruit_AHTX0 aht;
 Adafruit_seesaw ss;
-sensors_event_t humidity, temp;
+Adafruit_AHTX0 aht;
+// TODO rework with ptrs
+uint32_t lum, ir, full;
+WiFiClient client;
+PubSubClient mqtt_client;
+
 void Sensors::getStatus(void)
 {
   uint8_t x = tsl.getStatus();
@@ -121,6 +127,7 @@ void Sensors::displayLightSensorDetails(void)
 
 Sensors::Sensors(void)
 {
+
   // ctor
   if (!ss.begin(0x36))
   {
@@ -141,9 +148,8 @@ Sensors::Sensors(void)
   else
   {
 
+    sensors_event_t humidity, temp;
     aht.getEvent(&humidity, &temp); // populate temp and humidity objects with fresh data
-    Serial.println(temp.temperature);
-    Serial.println(humidity.relative_humidity);
   }
   logPrintlnA("AHT10 or AHT20 found");
   if (!tsl.begin())
@@ -162,7 +168,7 @@ Sensors::Sensors(void)
     logPrintlnA("No sensor found ... check your wiring?");
     ;
   }
-
+  
   /* Configure the sensor (including the interrupt threshold) */
   this->configureLightSensor();
   /* Display some basic information on this sensor */
@@ -171,30 +177,70 @@ Sensors::Sensors(void)
 
 void Sensors::refresh()
 {
-  logPrintlnA("Start Sensor run");
-  
+  // TODO Err Check Sensor sanity, is warmup needed?
+  // TODO Implement stabilizing filter
+  sensors_event_t humidity, temp;
+  SensorData data;
+  uint8_t aht_status = aht.getStatus();
+  data.aht_status = aht_status;
+  logPrintA("Sensor check: ");
   aht.getEvent(&humidity, &temp); // populate temp and humidity objects with fresh data
-  Serial.println(temp.temperature);
-  Serial.println(humidity.relative_humidity);
+  float tmp = temp.temperature;
+  float rh = humidity.relative_humidity;
+  data.air_temp = tmp;
+  data.humidity = rh;
   logPrintA("\tAHT [*]");
-  this->p_data.air_temp = temp.temperature;
-  this->p_data.humidity = humidity.relative_humidity;
-  logPrintA("\tTouch [*]");
-  this->p_data.soil_cap = ss.touchRead(0);
-  logPrintA("\tTemp [*]");
-  this->p_data.soil_tempC = ss.getTemp();
+  data.soil_moisture = ss.touchRead(0);
+  data.soil_temp = ss.getTemp();
+  logPrintA("\tSoil [*]");
+  lum = tsl.getFullLuminosity();
   logPrintlnA("\tLight [*]");
-  uint32_t lum = tsl.getFullLuminosity();
-  uint16_t ir, full;
-  ir = lum >> 16;
-  full = lum & 0xFFFF;
-  logPrintlnA("Poll results:");
-  logPrintlnA("\tAir: ");
-  logPrintlnA("\t\t" + String(temp.temperature) + " C\t");
-  logPrintlnA("\t\t" + String(humidity.relative_humidity) + "%RH");
+  uint16_t ir = lum >> 16;
+  uint16_t full = lum & 0xFFFF;
+  data.ir = ir;
+  data.full = full;
+  uint16_t lux;
+  lux = tsl.calculateLux(full, ir);
+  data.lux = lux;
+  StaticJsonDocument<256> doc;
+  doc["air_temp"] = data.air_temp;
+  doc["rh"] = data.humidity;
+  doc["soil_cap"] = data.soil_moisture;
+  doc["soil_temp"] = data.soil_temp;
+  doc["ir"] = data.ir;     // TODO daylight sensor
+  doc["full"] = data.full; // TODO daylight sensor
+  doc["lux"] = data.lux;
+  char buffer[256];
+  serializeJson(doc, buffer);
+  this->p_data = data;
+  
+  mqtt_client.setClient(client);
+  mqtt_client.setServer(MQTT_SERVER, MQTT_PORT);
+   if (mqtt_client.connect("kfdevice", MQTT_USER, MQTT_PASS))
+  {
+    mqtt_client.publish("kitchenfarms/device_alpha", buffer);
+  }
+  else
+  {
+    logPrintE("MQTT Disconnected");
+  } 
+}
 
+void Sensors::outputData()
+{
+  SensorData data = this->p_data;
+  logPrintlnA("Poll results:");
+  logPrintlnA("Air: ");
+  logPrintlnA("\t" + String(data.air_temp, 1) + " C");
+  logPrintlnA("\t" + String(data.humidity) + " %RH");
   logPrintlnA("\tLight:\t");
-  logPrintlnA("\t\tIR:\t" + String(ir));
-  logPrintlnA("\t\tVsbl\t" + String(full - ir));
-  logPrintlnA("\t\tLux\t" + String(tsl.calculateLux(full, ir)));
+  logPrintlnA("\t\tIR:\t" + String(data.ir));
+  logPrintlnA("\t\tVsbl\t" + String(data.full));
+  logPrintlnA("\t\tLux\t" + String(data.lux));
+
+  logPrintlnA("\tSoil\t");
+  logPrintlnA("\t\tMoist\t" + String(data.soil_moisture));
+  logPrintlnA("\t\tTemp\t" + String(data.soil_temp));
+
+  logPrintlnA("Status\t" + String(data.aht_status));
 }

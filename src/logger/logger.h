@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 class Logger
+
 {
 public:
 	enum debug_level_t {
@@ -51,6 +52,7 @@ private:
 
 	void printStartColor(debug_level_t level);
 	void printHeader(debug_level_t level, const char * file, uint32_t line, bool isln);
+	void printHeader(void);
 	void printEndColor(debug_level_t level);
 	char levelToChar(debug_level_t level);
 
@@ -60,6 +62,7 @@ private:
 };
 
 #define __FILENAME__ (strrchr("/" __FILE__, '/') + 1)
+// TODO Add Tab level logPrintA1 etc
 #define logPrintA(text)		Logger::instance().printA(text, __FILENAME__, __LINE__)
 #define logPrintE(text)		Logger::instance().printE(text, __FILENAME__, __LINE__)
 #define logPrintlnA(text)	Logger::instance().printlnA(text, __FILENAME__, __LINE__)

@@ -1,5 +1,6 @@
 
 // #ifndef DEBUG
+#define MQTT_BUFFER_LENGTH 512
 #define MQTT_SERVER "206.189.137.171"
 #define MQTT_PORT 1883
 #define MQTT_USER "kitchenfarms"

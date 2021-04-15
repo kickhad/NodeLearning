@@ -2,6 +2,7 @@
     "C_Cpp.errorSquiggles": "Disabled",
     "C_Cpp.dimInactiveRegions": false,
     "files.associations": {
-        "wire.h": "c"
+        "wire.h": "c",
+        "arduinojson.h": "c"
     }
 }

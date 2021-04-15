@@ -3,7 +3,7 @@
 #include "kfcore/core.h"
 #include "ArduinoJson.h"
 #include "MyDisplay.h"
-#include <Wire.h>
+// #include <Wire.h>
 // #include <SSD1306Wire.h>
 #include "WiFiClient.h"
 #include "configuration.h"
@@ -20,8 +20,8 @@
 /**************************************************************************/
 
 // SSD1306Wire display(0x3c, SDA, SCL);
-WiFiClient client;
-PubSubClient mqtt_client(client);
+// WiFiClient client;
+// PubSubClient mqtt_client(client);
 Sensors *sensors;
 unsigned long tik = 0;
 
@@ -52,38 +52,35 @@ void setup()
 
   delay(500);
   // wifiManager = wifiManager();
-  mqtt_client.setServer(MQTT_SERVER, MQTT_PORT);
+  // 
 }
 
-void mqtt_push()
-{
-//
-#define BUFFER_LENGTH 256
-  logPrintlnA("MQTT Prep");
-  StaticJsonDocument<BUFFER_LENGTH> doc;
-  // int battery_level = 0;
-  // int tint = TINT_LEVEL;
-  SensorData data = sensors->p_data;
-  doc["air_temp"] = data.air_temp;
-  doc["rh"] = data.humidity;
-  doc["soil_cap"] = data.soil_cap;
-  doc["soil_temp"] = data.soil_tempC;
-  doc["sunlight"] = 0; // TODO daylight sensor
-  // doc["batt"] = battery_level;
-  // doc["tint"] = tint;
-  char buffer[BUFFER_LENGTH];
-  serializeJson(doc, buffer);
-  if (mqtt_client.connect("kfdevice", MQTT_USER, MQTT_PASS))
-  {
-    mqtt_client.publish("kitchenfarms/device_alpha", buffer);
-  }
-  else
-  {
-    logPrintE("MQTT Disconnected");
-  } // mqtt_push();
-  // mqtt_client.publish("kitchenfarms/device_alpha", buffer);
-  logPrintlnA("MQTT Sent");
-}
+// void mqtt_push()
+// {
+// //
+
+//   logPrintlnA("MQTT Prep");
+//   StaticJsonDocument<128> o_doc = sensors->JSON;
+//   // int battery_level = 0;
+//   // int tint = TINT_LEVEL;
+  
+  
+//   // doc["batt"] = battery_level;
+//   // doc["tint"] = tint;
+//   char buffer[128];
+//   serializeJson(o_doc, buffer);
+//   Serial.print(buffer);
+//   if (mqtt_client.connect("kfdevice", MQTT_USER, MQTT_PASS))
+//   {
+//     mqtt_client.publish("kitchenfarms/device_alpha", buffer);
+//   }
+//   else
+//   {
+//     logPrintE("MQTT Disconnected");
+//   } // mqtt_push();
+//   // mqtt_client.publish("kitchenfarms/device_alpha", buffer);
+//   logPrintlnA("MQTT Sent");
+// }
 
 //   JsonArray data = doc.createNestedArray("data");
 
@@ -97,9 +94,11 @@ void mqtt_push()
 void loop()
 {
   // configPortalRequested();
-  logPrintlnA("Polling Sensors");
+  logPrintlnA("<--- sensor run --- ");
   sensors->refresh();
-  logPrintlnA("Poll Finished");
-  mqtt_push();
+  delay(500);
+  // sensors->outputData();
+  logPrintlnA("--- end sensor run --->");
+  // mqtt_push();
   delay(1000 * 3); //60 * 15);
 }
